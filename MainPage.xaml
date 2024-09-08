@@ -1,0 +1,40 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="WeatherApp.MainPage">
+    <StackLayout>
+        <Entry x:Name="SearchEntry" Placeholder="Enter location" />
+        <Button Text="Search" Clicked="OnSearchClicked" />
+        <ListView x:Name="ResultsListView" />
+        <Button Text="View Favorites" Clicked="OnViewFavoritesClicked" />
+    </StackLayout>
+</ContentPage>
+
+using Microsoft.Maui.Controls;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+public partial class MainPage : ContentPage
+{
+    private readonly LocationService _locationService;
+    private readonly FavoritesService _favoritesService;
+
+    public MainPage()
+    {
+        InitializeComponent();
+        _locationService = new LocationService(new HttpClient());
+        _favoritesService = new FavoritesService();
+    }
+
+    private async void OnSearchClicked(object sender, EventArgs e)
+    {
+        var query = SearchEntry.Text;
+        var results = await _locationService.SearchLocationsAsync(query);
+        ResultsListView.ItemsSource = results;
+    }
+
+    private async void OnViewFavoritesClicked(object sender, EventArgs e)
+    {
+        var favorites = await _favoritesService.GetFavoritesAsync();
+        ResultsListView.ItemsSource = favorites;
+    }
+}
